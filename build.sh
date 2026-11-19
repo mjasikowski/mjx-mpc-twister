@@ -3,6 +3,11 @@ set -euo pipefail
 cd "$(dirname "$0")"
 version=1.0.0
 output="dist/mjx-mpc-twister-$version"
+library="$output/twister-control.so"
+if [[ $# != 0 ]]; then
+    [[ $# == 2 && $1 == --library ]] || { echo 'Usage: bash build.sh [--library OUTPUT]' >&2; exit 2; }
+    library=$2
+fi
 mkdir -p "$output"
 "${HOST_CC:-cc}" -std=c11 -O2 -Wall -Wextra -Werror -Isrc tests/encoder_test.c -o "$output/test"
 "$output/test"
@@ -17,9 +22,11 @@ else
 fi
 "${compiler[@]}" -I"${ALSA_INCLUDE:?Set ALSA_INCLUDE to the directory containing alsa/asoundlib.h}" \
     -std=gnu11 -O2 -Wall -Wextra -Werror -fPIC -fvisibility=hidden -mbranch-protection=standard \
-    -shared -Wl,--no-undefined -pthread src/twister.c -ldl -o "$output/twister-control.so"
+    -shared -Wl,--no-undefined -pthread src/twister.c -ldl -o "$library"
+if [[ $# != 0 ]]; then exit 0; fi
 cp install.sh uninstall.sh autostart.sh "$output/"
 cp README.md "$output/INSTALL.md"
+if [[ -f LICENSE ]]; then cp LICENSE "$output/"; fi
 python3 - "$output" <<'PY'
 import hashlib
 import sys
@@ -28,6 +35,8 @@ from zipfile import ZIP_DEFLATED, ZipFile
 
 folder = Path(sys.argv[1])
 files = ["INSTALL.md", "autostart.sh", "install.sh", "uninstall.sh", "twister-control.so"]
+if (folder / "LICENSE").is_file():
+    files.append("LICENSE")
 checksums = "".join(f"{hashlib.sha256((folder / f).read_bytes()).hexdigest()}  {f}\n" for f in files)
 (folder / "SHA256SUMS").write_text(checksums, encoding="ascii")
 archive = folder.with_name(folder.name + "-mpc-live3-3.10.1.12-mod.zip")

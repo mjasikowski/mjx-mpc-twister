@@ -23,15 +23,16 @@ rather than trying to combine unrelated mods.
 
 ## Installation with automatic startup
 
-1. Download the ZIP and its `.sha256` file from [Releases](../../releases).
-2. Verify the download with `sha256sum -c <archive>.zip.sha256`
-   (or `shasum -a 256 -c <archive>.zip.sha256` on macOS).
-3. Download the pinned [Open MPC Add-In Restore 1.2.0 script][restore].
-   Extract the ZIP and copy the extracted files and the script to the MPC.
-4. From the extracted directory, run over authorized root SSH:
-   `sh autostart.sh install /path/to/addin-restore-patch.sh`.
-   The installer verifies the script checksum and exact firmware build.
-5. Save your project and reboot the device. On startup, Add-In Restore
+Use the `*-mpc-aarch64.zip` asset from [Releases](../../releases).
+Extract it, verify `SHA256SUMS` from inside the extracted directory, and copy
+the directory to your MPC. Save your project before installing.
+
+1. From the extracted directory on the MPC, run `sh install.sh` over
+   authorized root SSH. This is the standard Open MPC add-in installer.
+2. Install the pinned [Open MPC Add-In Restore 1.2.0 script][restore]
+   with `sh addin-restore-patch.sh install`. Its SHA-256 is
+   `7cc1a2901f57b634874c28e5d2cb8912223ca5e489075031c5df5656218e2d20`.
+3. Save your project and reboot the device. On startup, Add-In Restore
    restarts the MPC application once to load the add-in. No computer or
    action on the MPC is required on subsequent boots. Plug in the Twister
    and select Bank 1; the add-in also detects reconnects.
@@ -40,17 +41,18 @@ This setup was verified after a full reboot on an MPC Live III running
 3.10.1.12. It does not edit the system image, projects, or preferences.
 Check firmware compatibility before updating the device.
 
-To remove Twister autostart, use the same release and run
-`sh autostart.sh uninstall`, then save your project and reboot.
-This leaves Add-In Restore and other add-ins installed.
+To remove Twister, save your project and run
+`sh /data/mpc-addins/mjx-mpc-twister/uninstall.sh`. This leaves Add-In Restore
+and other add-ins installed.
 
 [restore]: https://raw.githubusercontent.com/open-mpc/mpc-vst-plugins/6fb514d0e553f8cd1872c91cf7d13caae061193f/tools/mpc_patch/addin_restore/addin-restore-patch.sh
 
 ### Temporary installation
 
-For a session-only trial, save your project and run `sh install.sh --restart`
-instead. `sh uninstall.sh --restart` removes that temporary installation.
-A full device reboot also clears it.
+The older direct `*-mod.zip` uses separate scripts. For that ZIP only,
+`sh install.sh --restart` installs for the current session and
+`sh uninstall.sh --restart` removes it. A full device reboot also clears a
+direct session installation.
 
 ## Build from source
 With Python 3, a host C compiler, Zig 0.15.2, and public ALSA development
@@ -65,8 +67,29 @@ If using Python's `ziglang` package, set `ZIG_PYTHON` to the virtual
 environment's Python. Build outputs, including the ZIP and its SHA-256,
 appear in `dist/`. No Akai firmware files are packaged.
 
-This ZIP is distributed directly. Twister is a controller add-in, not a VST2
-instrument or effect, and this package is not listed in the Plugin Manager.
+The ZIP from `build.sh` is for direct installation. Twister is a controller
+add-in, not a VST2 instrument or effect.
+
+### Open MPC catalog packaging
+
+For a catalog release, use the [Open MPC add-in workflow][addin-workflow].
+`build-catalog.sh` uses the upstream packager and standard installer and
+validates the resulting Gen2 ZIP. It requires an approved root `LICENSE`;
+use the same SPDX identifier in the build command and registry entry.
+
+```sh
+git -C /path/to/mpc-vst-plugins checkout --detach 864411da8fb0d88ad150d316ac6fea5f279113ea
+bash build-catalog.sh /path/to/mpc-vst-plugins VERSION SPDX-LICENSE
+```
+
+Smoke-test the generated ZIP on a Live III with MPC OS 3.10.1.12 before
+publishing it. Submit `catalog/plugins/mjx-mpc-twister.json` to Open MPC
+with `kind: "addin"` and `asset_pattern: "*-mpc-aarch64.zip"`. The catalog
+installer and the separate Add-In Restore patch serve different purposes:
+the installer registers Twister for this session; the patch restores add-ins
+on subsequent boots.
+
+[addin-workflow]: https://github.com/open-mpc/mpc-vst-plugins/blob/main/docs/ADDINS.md#releasing
 
 ## Hardware checks
 

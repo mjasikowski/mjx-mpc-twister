@@ -1,0 +1,5 @@
+ADDIN_ID=mjx-mpc-twister
+ADDIN_NAME="MJX MPC Twister"
+ADDIN_SO=twister-control.so
+ADDIN_FILES="LICENSE"
+ADDIN_DONE="For automatic startup after a full reboot, follow the Add-In Restore instructions in the project README."
