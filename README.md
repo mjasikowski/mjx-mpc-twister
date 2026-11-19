@@ -1,25 +1,30 @@
 # MJX MPC Twister
 
-Standalone MIDI Fighter Twister integration for the **MPC Live III**, on the
-exact **MPC OS 3.10.1.12** AArch64 build. The first bank's channel 1 CC 0–15 (absolute)
-target 16 fixed logical Q-Links independently of the MPC's active Q-Link
-bank. The mod subscribes directly to the Twister at startup and on hotplug;
-no MPC MIDI input preference or MPC restart is needed after connecting it.
-Ring feedback follows MPC's Q-Link positions after a short idle window. The
-first CC establishes a baseline if no feedback has yet been sent.
+Use your MIDI Fighter Twister as a hands-on control surface for the
+**MPC Live III**. Reach all 16 Q-Links without switching banks on the MPC,
+and jump between tracks without touching the screen.
 
-Bank 1 pushes must use **CC Toggle**, MIDI channel 2, CC 0–15:
+## What you can do
+
+- **Turn a knob to change a sound or setting.** Each knob controls one Q-Link.
+  What it adjusts follows the current MPC screen and Q-Link assignments.
+- **See where you are.** The light ring around each knob follows its Q-Link
+  value. The light under the selected track's knob follows the track color.
+- **Press a knob to select a track or open a shortcut.** The first 12 knobs
+  select tracks in project order. The bottom row gives you four shortcuts:
 
 | Push | Action | Switch LED |
 | --- | --- | --- |
-| 1–12 | Select the corresponding existing track | Selected track's approximate hue |
 | 13 | Open Add Track | Green |
 | 14 | Open Track Edit | Yellow |
-| 15 | Open MPC's native Delete Track confirmation | Red |
+| 15 | Ask before deleting the selected track | Red |
 | 16 | Open Clip Matrix | Purple |
 
-The installer refuses existing MPC service overrides or an existing preload
-rather than trying to combine unrelated mods.
+After setup, plug in or reconnect the Twister at any time. No MIDI input menu
+or application restart is needed when you plug it in. With Add-In Restore
+installed, it also comes back automatically when you turn on the MPC.
+
+**Compatibility:** MPC Live III running **MPC OS 3.10.1.12** only.
 
 ## Installation with automatic startup
 
@@ -46,6 +51,11 @@ To remove Twister, save your project and run
 and other add-ins installed.
 
 [restore]: https://raw.githubusercontent.com/open-mpc/mpc-vst-plugins/6fb514d0e553f8cd1872c91cf7d13caae061193f/tools/mpc_patch/addin_restore/addin-restore-patch.sh
+
+### Twister MIDI profile
+
+Use Bank 1. Knob turns use absolute CC 0–15 on MIDI channel 1. Knob presses
+use **CC Toggle**, CC 0–15 on MIDI channel 2.
 
 ### Temporary installation
 
@@ -97,7 +107,7 @@ Connect the Twister in Bank 1. In a project with parameters assigned to
 Q-Links, turn all 16 encoders, change the MPC's active Q-Link bank, and
 repeat after unplugging and reconnecting the Twister. Verify that another MIDI
 device and the hardware Q-Links still behave normally. Save and reload a test
-project, then run `sh uninstall.sh --restart` and verify stock behavior.
+project, then follow the uninstall instructions above and verify stock behavior.
 A test project with 16 assigned parameters is needed to distinguish routed
 turns from actual changes for every encoder. The MPC journal reports both
 events per encoder and reports invoked push actions. Check the visible LED
