@@ -21,23 +21,36 @@ Bank 1 pushes must use **CC Toggle**, MIDI channel 2, CC 0–15:
 The installer refuses existing MPC service overrides or an existing preload
 rather than trying to combine unrelated mods.
 
-## Installation
+## Installation with automatic startup
 
 1. Download the ZIP and its `.sha256` file from [Releases](../../releases).
 2. Verify the download with `sha256sum -c <archive>.zip.sha256`
    (or `shasum -a 256 -c <archive>.zip.sha256` on macOS).
-3. Save your project. Extract the ZIP, copy the extracted directory to the
-   MPC, and run `sh install.sh --restart` from that directory over authorized
-   root SSH. This restarts the MPC application.
-4. Plug in the Twister and select Bank 1. The integration starts
-   automatically with the MPC application while installed; no separate step
-   is needed when the controller is connected or reconnected.
+3. Download the pinned [Open MPC Add-In Restore 1.2.0 script][restore].
+   Extract the ZIP and copy the extracted files and the script to the MPC.
+4. From the extracted directory, run over authorized root SSH:
+   `sh autostart.sh install /path/to/addin-restore-patch.sh`.
+   The installer verifies the script checksum and exact firmware build.
+5. Save your project and reboot the device. On startup, Add-In Restore
+   restarts the MPC application once to load the add-in. No computer or
+   action on the MPC is required on subsequent boots. Plug in the Twister
+   and select Bank 1; the add-in also detects reconnects.
 
-The installer verifies the exact MPC executable and rolls back if startup
-checks fail. It does not edit firmware, projects, or saved preferences. A full
-device reboot clears the runtime installation; run the installer again after
-boot. To remove it without rebooting the device, save your project and run
-`sh uninstall.sh --restart`.
+This setup was verified after a full reboot on an MPC Live III running
+3.10.1.12. It does not edit the system image, projects, or preferences.
+Check firmware compatibility before updating the device.
+
+To remove Twister autostart, use the same release and run
+`sh autostart.sh uninstall`, then save your project and reboot.
+This leaves Add-In Restore and other add-ins installed.
+
+[restore]: https://raw.githubusercontent.com/open-mpc/mpc-vst-plugins/6fb514d0e553f8cd1872c91cf7d13caae061193f/tools/mpc_patch/addin_restore/addin-restore-patch.sh
+
+### Temporary installation
+
+For a session-only trial, save your project and run `sh install.sh --restart`
+instead. `sh uninstall.sh --restart` removes that temporary installation.
+A full device reboot also clears it.
 
 ## Build from source
 With Python 3, a host C compiler, Zig 0.15.2, and public ALSA development
@@ -52,12 +65,8 @@ If using Python's `ziglang` package, set `ZIG_PYTHON` to the virtual
 environment's Python. Build outputs, including the ZIP and its SHA-256,
 appear in `dist/`. No Akai firmware files are packaged.
 
-The ZIP follows the manual release steps in the
-[Open MPC workflow](https://open-mpc.github.io/workflow.html): test, package
-with install/uninstall scripts and checksums, smoke-test that ZIP on device,
-then attach the tested ZIP and its checksum to a release. This mod is not a
-VST2 instrument or effect and is **not** eligible for the VST catalog,
-`release.py`, `catalog_check.py`, or the Plugin Manager.
+This ZIP is distributed directly. Twister is a controller add-in, not a VST2
+instrument or effect, and this package is not listed in the Plugin Manager.
 
 ## Hardware checks
 
